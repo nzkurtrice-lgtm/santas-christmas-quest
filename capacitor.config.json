@@ -1,0 +1,9 @@
+{
+  "appId": "com.goodthings.santasquest",
+  "appName": "Santa's Christmas Quest",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#102b3b",
+    "allowMixedContent": false
+  }
+}
