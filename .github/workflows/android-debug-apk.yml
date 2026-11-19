@@ -28,6 +28,15 @@ jobs:
         run: npx cap add android
       - name: Sync game assets
         run: npx cap sync android
+      - name: Prefer Google mirror for Maven Central dependencies
+        run: |
+          for file in android/settings.gradle android/build.gradle; do
+            if [ -f "$file" ]; then
+              sed -i '/mavenCentral()/i\\        maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }' "$file"
+            fi
+          done
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
       - name: Build debug APK
         run: |
           cd android
