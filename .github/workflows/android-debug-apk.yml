@@ -40,7 +40,7 @@ jobs:
           page.raise_for_status()
           html = page.text
           game = re.search(r"""data-game[_-]?id=["'](\d+)""", html, re.I) or re.search(r'"game_id"\s*:\s*(\d+)', html)
-          upload = re.search(r"""data-upload[_-]?id=["'](\d+)""", html, re.I) or re.search(r'"upload_id"\s*:\s*["']?(\d+)', html)
+          upload = re.search(r"""data-upload[_-]?id=["'](\d+)""", html, re.I) or re.search(r'upload_id.{0,30}?(\d+)', html, re.I)
           if not game or not upload:
               print('itch.io status:', page.status_code, 'final URL:', page.url)
               print('itch.io page excerpt:', html[:5000])
