@@ -39,10 +39,12 @@ jobs:
           page = requests.get('https://leftitrunning.itch.io/cozy-christmas-interior-kit', timeout=45)
           page.raise_for_status()
           html = page.text
-          game = re.search(r'data-game_id="(\d+)"', html)
-          upload = re.search(r'data-upload_id="(\d+)"', html)
+          game = re.search(r'data-game[_-]?id=["\\'](\\d+)', html, re.I) or re.search(r'"game_id"\\s*:\\s*(\\d+)', html)
+          upload = re.search(r'data-upload[_-]?id=["\\'](\\d+)', html, re.I) or re.search(r'"upload_id"\\s*:\\s*["\\']?(\\d+)', html)
           if not game or not upload:
-              raise SystemExit('Could not identify the public itch.io download form; refusing to build without the Christmas kit.')
+              print('itch.io status:', page.status_code, 'final URL:', page.url)
+              print('itch.io page excerpt:', html[:5000])
+              raise SystemExit('Could not identify itch.io game/upload IDs; inspect excerpt above. Refusing to build without the Christmas kit.')
           response = requests.post('https://itch.io/game/download/' + game.group(1), data={'upload_id': upload.group(1)}, allow_redirects=True, timeout=90)
           response.raise_for_status()
           if not response.url.lower().endswith('.zip') and not response.headers.get('Content-Type','').lower().startswith('application/zip'):
