@@ -73,7 +73,30 @@ for(let x of [-8,0,8]){cyl(.025,.025,1.1,mat(0x3b2b25),x,7.65,-1);ball(.22,M.gol
 cube(1.1,.75,1,mat(0x81502f),-8,.55,1.2);cyl(.22,.22,.08,M.gold,-8,.98,1.2);
 for(let i=0;i<8;i++){let x=3.4+(i%4)*.75,z=3.8+Math.floor(i/4)*.8;cube(.58,.48,.58,[M.red,M.green,mat(0x245b83)][i%3],x,.32,z);cube(.1,.5,.6,M.gold,x,.32,z);cube(.62,.08,.62,M.gold,x,.58,z)}
 for(let i=0;i<12;i++){let a=i*Math.PI/6;ball(.07,M.gold,Math.cos(a)*.8,4.3,Math.sin(a)*.8,loungeTree)}
-loungeTree=new THREE.Group();loungeTree.position.set(5,0,-3);root.add(loungeTree);cyl(.32,.4,.5,M.wood,0,.25,0,loungeTree);for(let i=0;i<4;i++)mesh(new THREE.ConeGeometry(1.45-i*.24,1.5,10),M.green,0,1+i*.9,0,loungeTree);for(let i=0;i<28;i++){let a=i*2.4,r=.7+(i%4)*.12;ball(.13,[mat(0xe13e49),M.gold,mat(0x4c9dd6),M.white][i%4],Math.cos(a)*r,.8+(i%6)*.55,Math.sin(a)*r,loungeTree)}mesh(new THREE.OctahedronGeometry(.32),M.gold,0,6.1,0,loungeTree);for(let i=0;i<5;i++){let x=3.5+(i%3)*.85,z=-3.5+(i%2)*.9;cube(.65,.55,.65,[M.red,M.gold,M.green][i%3],x,.28,z);cube(.12,.58,.68,M.white,x,.28,z)}santa();player.position.set(-1,0,1);loungeMilk=0;loungeCookies=0;camera.position.set(0,5,14);camera.lookAt(0,2,-2);mode='lounge';$('loungeMenu').classList.remove('hidden');$('loungeHint').classList.remove('hidden');$('drinkMilk').disabled=false;$('eatCookie').disabled=false;$('loungeHint').textContent='Explore the lounge. Walk to the table and enjoy the milk and cookies!';$('loungeOptions').classList.add('hidden');treeSelected=false;loungeYaw=0;loungePitch=0}
+loungeTree=new THREE.Group();loungeTree.position.set(5,0,-3);root.add(loungeTree);
+/* Detailed snow-dusted Christmas tree model: layered boughs, spiral lights, ornaments, star and wrapped gifts */
+cyl(.34,.43,.72,M.wood,0,.36,0,loungeTree);
+const pine=mat(0x14583d),pineDark=mat(0x0e4634),snowTrim=mat(0xeaf6f5),wire=mat(0xd5a83b,.35,.45);
+for(let tier=0;tier<5;tier++){
+ const y=.72+tier*.92,rad=1.72-tier*.25,h=1.65;
+ let bough=mesh(new THREE.ConeGeometry(rad,h,12,3),tier%2?pineDark:pine,0,y+.38,0,loungeTree);
+ bough.rotation.y=tier*.31;
+ let snowCap=mesh(new THREE.ConeGeometry(rad*.98,.2,12),snowTrim,0,y+.08,0,loungeTree);
+ snowCap.position.y=y+.08;
+ for(let branch=0;branch<12;branch++){
+  let a=branch*Math.PI/6+tier*.22,rr=rad*.79;
+  let twig=mesh(new THREE.ConeGeometry(.16,.82,6),tier%2?pine:pineDark,Math.cos(a)*rr,y+.05,Math.sin(a)*rr,loungeTree);
+  twig.rotation.z=Math.cos(a)*-.85;twig.rotation.x=Math.sin(a)*.85;
+ }
+}
+const lightPath=new THREE.CatmullRomCurve3(Array.from({length:100},(_,i)=>{let t=i/99* Math.PI*2*5.5;let y=.9+i/99*4.45;let r=1.55-i/99*1.28;return new THREE.Vector3(Math.cos(t)*r,y,Math.sin(t)*r)}));
+mesh(new THREE.TubeGeometry(lightPath,180,.025,6,false),wire,0,0,0,loungeTree);
+for(let i=0;i<75;i++){let t=i/74*Math.PI*2*5.5,y=.9+i/74*4.45,r=1.55-i/74*1.28;ball(.055,[M.gold,mat(0xffe8a3),mat(0xe74a55)][i%3],Math.cos(t)*r,y,Math.sin(t)*r,loungeTree)}
+for(let i=0;i<32;i++){let a=i*2.399,level=(i%8)/8, y=1.05+level*4.15, r=1.48-level*1.23;let ornament=ball(i%5===0?.16:.12,[mat(0xc83240,.22,.3),M.gold,mat(0x3c91bf,.2,.35),mat(0xf2eee0,.25,.1)][i%4],Math.cos(a)*r,y,Math.sin(a)*r,loungeTree);ornament.scale.y=1.12}
+let topper=mesh(new THREE.OctahedronGeometry(.42),M.gold,0,5.65,0,loungeTree);topper.rotation.y=Math.PI/4;
+for(let i=0;i<6;i++){let a=i*Math.PI/3;ball(.09,M.white,Math.cos(a)*.22,5.65,Math.sin(a)*.22,loungeTree)}
+for(let i=0;i<6;i++){let x=3.3+(i%3)*1.55,z=-4.25+Math.floor(i/3)*1.55;let giftMat=[M.red,mat(0x176b4c),mat(0x315b83),mat(0x9c3970)][i%4];cube(.82,.66,.82,giftMat,x,.38,z);cube(.13,.69,.84,M.gold,x,.38,z);cube(.86,.12,.86,M.gold,x,.72,z);let bow=ball(.16,M.gold,x,.83,z);bow.scale.set(1.5,.6,.7)}
+santa();player.position.set(-1,0,1);loungeMilk=0;loungeCookies=0;camera.position.set(0,5,14);camera.lookAt(0,2,-2);mode='lounge';$('loungeMenu').classList.remove('hidden');$('loungeHint').classList.remove('hidden');$('drinkMilk').disabled=false;$('eatCookie').disabled=false;$('loungeHint').textContent='Explore the lounge. Walk to the table and enjoy the milk and cookies!';$('loungeOptions').classList.add('hidden');treeSelected=false;loungeYaw=0;loungePitch=0}
 
 function lose(){if(inv>0)return;health-=25;inv=1.5;vy=4;if(health<=0){lives--;health=100;}updateHud();if(lives<=0){mode='failed';hide();$('failed').classList.remove('hidden');$('hud').classList.add('hidden');$('touch').classList.add('hidden')}}
 function jump(){jumpQueued=true}
