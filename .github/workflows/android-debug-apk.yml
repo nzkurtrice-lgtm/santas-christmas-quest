@@ -24,6 +24,13 @@ jobs:
         run: npm install
       - name: Bundle Three.js locally for offline play
         run: mkdir -p www/vendor && cp node_modules/three/build/three.min.js www/vendor/three.min.js
+      - name: Download animated animal models and GLTF loader
+        run: |
+          mkdir -p www/assets/animals
+          curl -L --fail --retry 3 https://raw.githubusercontent.com/trebeljahr/quaternius-showcase/main/public/glb/animals_pack/Deer.glb -o www/assets/animals/Deer.glb
+          curl -L --fail --retry 3 https://raw.githubusercontent.com/trebeljahr/quaternius-showcase/main/public/glb/animals_pack/Fox.glb -o www/assets/animals/Fox.glb
+          curl -L --fail --retry 3 https://raw.githubusercontent.com/trebeljahr/quaternius-showcase/main/public/glb/animals_pack/Husky.glb -o www/assets/animals/Husky.glb
+          curl -L --fail --retry 3 https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js -o www/vendor/GLTFLoader.js
       - name: Generate Android project
         run: npx cap add android
       - name: Sync game assets
