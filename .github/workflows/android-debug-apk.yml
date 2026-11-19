@@ -31,6 +31,44 @@ jobs:
           curl -L --fail --retry 3 https://raw.githubusercontent.com/trebeljahr/quaternius-showcase/main/public/glb/animals_pack/Fox.glb -o www/assets/animals/Fox.glb
           curl -L --fail --retry 3 https://raw.githubusercontent.com/trebeljahr/quaternius-showcase/main/public/glb/animals_pack/Husky.glb -o www/assets/animals/Husky.glb
           curl -L --fail --retry 3 https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js -o www/vendor/GLTFLoader.js
+      - name: Download and unpack CC0 Christmas interior kit
+        run: |
+          python3 - <<'PY'
+          import re, requests, sys
+          from pathlib import Path
+          page = requests.get('https://leftitrunning.itch.io/cozy-christmas-interior-kit', timeout=45)
+          page.raise_for_status()
+          html = page.text
+          game = re.search(r'data-game_id=[\"\\'](\\d+)', html)
+          upload = re.search(r'data-upload_id=[\"\\'](\\d+)', html)
+          if not game or not upload:
+              raise SystemExit('Could not identify the public itch.io download form; refusing to build without the Christmas kit.')
+          response = requests.post('https://itch.io/game/download/' + game.group(1), data={'upload_id': upload.group(1)}, allow_redirects=True, timeout=90)
+          response.raise_for_status()
+          if not response.url.lower().endswith('.zip') and not response.headers.get('Content-Type','').lower().startswith('application/zip'):
+              raise SystemExit('itch.io did not return the asset ZIP (final URL: ' + response.url + ').')
+          Path('/tmp/christmas_interior_v1.zip').write_bytes(response.content)
+          PY
+          mkdir -p www/assets/christmas
+          unzip -q /tmp/christmas_interior_v1.zip -d /tmp/christmas-kit
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          src = Path('/tmp/christmas-kit')
+          out = Path('www/assets/christmas')
+          models = {}
+          for f in src.rglob('*.glb'):
+              key = ''.join(c.lower() for c in f.stem if c.isalnum())
+              target = out / (key + '.glb')
+              target.write_bytes(f.read_bytes())
+              models[key] = 'assets/christmas/' + target.name
+          if len(models) < 20:
+              raise SystemExit('Expected the 32-model Christmas kit; found only ' + str(len(models)) + ' GLB files.')
+          for f in src.rglob('*.png'):
+              (out / f.name).write_bytes(f.read_bytes())
+          (out / 'manifest.json').write_text(json.dumps(models))
+          print('Imported Christmas GLBs:', ', '.join(sorted(models)))
+          PY
       - name: Generate Android project
         run: npx cap add android
       - name: Sync game assets
